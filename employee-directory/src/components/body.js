@@ -1,95 +1,102 @@
-// import React, { Component } from "react";
-// import "../styles/body.css";
-// import Wrapper from "./components/wrapper";
-// import PeopleCard from "./components/card";
-// import People from "DA JSONNNNN";
-// import API from "../utils/API";
-
-// class Body extends Component {
-
-//     state = {
-//         result: [],
-//         search: ""
-//       };
-
-//   componentDidMount() {
-//     API.search()
-//     .then(res=> this.setState({result: res.data.results}))
-//     .catch(err=> console.log(err));
-//   }
-
-//   render() {
-//     return (
-//       <Wrapper>
-//         <h1 className="title">Peoples List</h1>
-//         {this.state.peoples.map(peoplesData, key => (
-//           <PeopleCard
-//             key={peoplesData.id}
-//             firstname={People.results.name.first}
-//             lastname={People.results.name.last}
-//             email={People.results.email}
-//             picture={People.results.picture.medium}
-//           />
-//         ))}
-//       </Wrapper>
-//     );
-//   }
-// }
-
-// export default Body;
-
-
-
 import React from "react";
-// import "../styles/body.css";
 import Wrapper from "./wrapper";
 import PeopleCard from "./card";
-// import People from "DA JSONNNNN";
 import API from "../utils/API";
-
+import "../styles/body.css";
+import SortBtn from "./SortBtn";
+import Filter from "./FilterBtn";
+import Row from './row';
+import Container from "./container";
 
 
 class Body extends React.Component {
-
   state = {
     peoples: [],
-    search: ""
+    results: "",
+    filter: "",
+    sorted: false
   };
 
-  componentDidMount () {
+  componentDidMount() {
     API.search()
-    .then(res => this.setState({ peoples: res.data.results }))
-    .catch(err => console.log(err));
-  }; 
+      .then(res => this.setState({ peoples: res.data.results, results: res.data.results}))
+      .catch(err => console.log(err));
+  }
 
-  
-  
-render() {
-  console.log(this.state.peoples);
+  handleInputChange = event => {
+    event.preventDefault();
     
-  
-  return (
+    let filter = event.target.value.toLowerCase();
+    let peoples = [...this.state.results];
+    if (filter > "") {
+      peoples = peoples.filter(person => {
+        let name = person.name.first.toLowerCase();
 
+        return name.startsWith(filter);
+      });
+    }
 
-    <div>
-      <Wrapper>
-        <h1 className="title">Peoples List</h1>
-        {this.state.peoples.map((peoples, index) => (
-          <PeopleCard
-          key={index}
-          firstname={peoples.name.first}
-          lastname={peoples.name.last}
-          email={peoples.email}
-          picture={peoples.picture.medium}
-          />
-          ))}
-      </Wrapper>
-    
-          
-        </div>
-        
+    this.setState({ filter: filter, peoples: peoples });
+  };
 
-  )
+  handleFormSubmit = event => {
+    event.preventDefault();
+    console.log("formSubmit Works!");
+  };
+
+  handleOnClick = event => {
+    event.preventDefault();
+    console.log("I'm running ths button");
+
+    function sortStuff(v) {
+      v = [...v];
+      v.sort((a, b) => {
+        a = a.name.first.toLowerCase() + " " + a.name.last.toLowerCase();
+        b = b.name.first.toLowerCase() + " " + b.name.last.toLowerCase();
+        return a > b ? 1 : b > a ? -1 : 0;
+      });
+      return v;
+    }
+
+    let peoples = sortStuff(this.state.peoples);
+    let results = sortStuff(this.state.results);
+    this.setState({ sorted: true, peoples: peoples, results: results });
+  };
+
+  render() {
+    return (
+      <div>
+        <Wrapper>
+          <Container>
+            <div>
+              <Row>
+                <SortBtn onClick={this.handleOnClick}></SortBtn>
+              </Row>
+            </div>
+            <div>
+              <Row>
+                <Filter
+                  onChange={this.handleInputChange}
+                />
+              </Row>
+            </div>
+            <Row>
+              <h1 className="title">Peoples List</h1>
+              {this.state.peoples.map((peoples, index) => (
+                <PeopleCard
+                  key={peoples.login.uuid}
+                  name={peoples.name.first + " " + peoples.name.last}
+                  email={peoples.email}
+                  picture={peoples.picture.medium}
+                  location={peoples.location.city}
+                />
+              ))}
+            </Row>
+          </Container>
+        </Wrapper>
+      </div>
+
+    );
   }
 }
 export default Body;

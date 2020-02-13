@@ -1,0 +1,12 @@
+.card{
+    background: rgba(189, 189, 189, 0.603);
+    margin: 1vw;
+    padding-left: 3vw;
+    padding-right: 3vw;
+    padding-top: 1vw;
+    padding-bottom: 1vw;
+}
+
+.picture{
+    margin-bottom: 3vh;
+}
